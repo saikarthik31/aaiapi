@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web Search</title>
+    <style>
+        body { font-family: Arial, sans-serif; }
+        .container { max-width: 800px; margin: 0 auto; padding: 20px; }
+        .result { border: 1px solid #ddd; padding: 10px; margin-top: 10px; border-radius: 5px; }
+        .result a { text-decoration: none; color: blue; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>Search Tavily API</h2>
+        <form method="post">
+            {% csrf_token %}
+            <input type="text" name="query" placeholder="Enter search query" required>
+            <button type="submit">Search</button>
+        </form>
+
+        {% if data %}
+            <h3>Results for: "{{ data.query }}"</h3>
+
+            {% if data.answer %}
+                <p><strong>Answer:</strong> {{ data.answer }}</p>
+            {% endif %}
+
+            {% if data.results %}
+                {% for item in data.results %}
+                    <div class="result">
+                        <a href="{{ item.url }}" target="_blank">{{ item.title }}</a>
+                        <p>{{ item.content }}</p>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <p>No results found.</p>
+            {% endif %}
+        {% endif %}
+    </div>
+
+</body>
+</html>

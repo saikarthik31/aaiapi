@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search Tavily</title>
+</head>
+<body>
+    <h1>Search Tavily API</h1>
+    
+    <form action="{% url 'search_tavily' %}" method="POST">
+        {% csrf_token %}
+        <input type="text" name="query" placeholder="Enter search term" required>
+        <button type="submit">Search</button>
+    </form>
+</body>
+</html>
