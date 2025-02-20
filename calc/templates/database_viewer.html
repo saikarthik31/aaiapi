@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Database Viewer</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+
+    <h2>Database Viewer</h2>
+
+    <label for="table-select">Select a Table:</label>
+    <select id="table-select">
+        <option value="">--Select a Table--</option>
+        {% for table in tables %}
+            <option value="{{ table }}">{{ table }}</option>
+        {% endfor %}
+    </select>
+
+    <table border="1" id="data-table">
+        <thead>
+            <tr id="table-head"></tr>
+        </thead>
+        <tbody id="table-body"></tbody>
+    </table>
+
+    <script>
+        $(document).ready(function () {
+            $("#table-select").change(function () {
+                let tableName = $(this).val();
+                if (!tableName) return;
+
+                fetch(`/get-table-data/?table=${tableName}`)
+                .then(response => response.json())
+                .then(data => {
+                    $("#table-head").empty();
+                    $("#table-body").empty();
+
+                    if (data.error) {
+                        alert(data.error);
+                        return;
+                    }
+
+                    // Fix: Correct key (use `data.rows` instead of `data.data`)
+                    let headers = data.columns.map(col => `<th>${col}</th>`).join('');
+                    $("#table-head").append(headers);
+
+                    data.rows.forEach(row => {
+                        let rowData = row.map(value => `<td>${value}</td>`).join('');
+                        $("#table-body").append(`<tr>${rowData}</tr>`);
+                    });
+                });
+            });
+        });
+    </script>
+
+</body>
+</html>

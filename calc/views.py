@@ -8,6 +8,7 @@ It contains the following views:
 """
 
 import json
+import sqlite3
 import requests
 from django.shortcuts import render
 from django.conf import settings
@@ -15,12 +16,12 @@ from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
 #from tavily import TavilyClient
 from .models import SearchResult
+from django.db import connection
+
+
 
 
 def greet(request):
-    """
-    Handles the search functionality by making a POST request to the Tavily API.
-    """
     message = ""
     if request.method == "POST":
         name = request.POST.get("name")
@@ -34,8 +35,6 @@ def greet(request):
 
 @csrf_exempt
 def search_tavily(request):
-    """Fetches search results from Tavily API and displays them in the frontend."""
-
     data = None  # Default empty response
 
     if request.method == "POST":
@@ -46,7 +45,7 @@ def search_tavily(request):
             headers = {
                 "Content-Type": "application/json",
                 "Authorization": f"Bearer {settings.TAVILY_API_KEY}",  # Fetch API key from settings
-            }
+                }
             payload = {"query": query}
 
             try:
@@ -58,8 +57,7 @@ def search_tavily(request):
                 data = {"error": "Request timed out. Please try again."}
             except requests.exceptions.RequestException as e:
                 data = {"error": str(e)}
-
-    return render(request, "apiwebsearch/websearch.html", {"data": data})
+        return render(request, "apiwebsearch/websearch.html", {"data": data})
 
 
 ### new code for api
@@ -74,9 +72,9 @@ def viewsearchpage(request):
     return render(request, 'apiwebsearch/searchweb.html')
 
 def getsearchresults(request):
-    query = request.POST.get('search_query', '').strip()  # Get search query
+    query = request.POST.get('search_query', '').strip()
 
-    # Simulated response (Replace with actual API call if needed)
+# Simulated response (Replace with actual API call if needed)
     response = {
         "results": [
             {
@@ -119,16 +117,66 @@ def getsearchresults(request):
 
     return render(request, 'apiwebsearch/searchweb.html', {'results': response['results'], 'query': query})
 
-@csrf_exempt  
+@csrf_exempt
 def save_to_database(request):
     if request.method == "POST":
-        data = json.loads(request.body)
-        selected_results = data.get("results", [])
+        try:
+            data = json.loads(request.body)
+            selected_results = data.get("results", [])
 
-        # Save selected results to the database (Example Model)
-        for item in selected_results:
-            SearchResult.objects.create(title=item['title'], url=item['url'], content=item['content'])
+            for item in selected_results:
+                SearchResult.objects.create(
+                    title=item['title'],
+                    url=item['url'],
+                    content=item['content']
+                )
 
-        return JsonResponse({"message": "Results saved successfully!"})
+            return JsonResponse({"message": "Results saved successfully!"}, status=200)
+        except Exception as e:
+            return JsonResponse({"error": f"An error occurred: {str(e)}"}, status=500)
 
     return JsonResponse({"error": "Invalid request"}, status=400)
+
+
+# code for table data
+
+
+
+
+def database_viewer(request):
+    """Fetches table names and renders the database viewer page."""
+    with connection.cursor() as cursor:
+        cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%';")
+        tables = [row[0] for row in cursor.fetchall()]
+
+    return render(request, "database_viewer.html", {"tables": tables})
+
+def get_tables(request):
+    """Fetches all table names from the SQLite database."""
+    with connection.cursor() as cursor:
+        cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%';")
+        tables = [row[0] for row in cursor.fetchall()]
+
+    return JsonResponse({"tables": tables})
+
+def get_table_data(request):
+    """Fetches data from a selected table."""
+    table_name = request.GET.get("table")
+
+    if not table_name:
+        return JsonResponse({"error": "No table specified"}, status=400)
+
+    with connection.cursor() as cursor:
+        try:
+            # Get column names (Fix: No parameterized query with PRAGMA)
+            cursor.execute(f"PRAGMA table_info({table_name})")
+            columns = [col[1] for col in cursor.fetchall()]
+
+            # Get table data
+            cursor.execute(f"SELECT * FROM {table_name} LIMIT 10")
+            rows = cursor.fetchall()
+
+            return JsonResponse({"columns": columns, "rows": rows})
+
+        except sqlite3.Error as e:
+            return JsonResponse({"error": str(e)}, status=500)
