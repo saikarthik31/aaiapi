@@ -10,13 +10,16 @@ It contains the following views:
 import json
 import sqlite3
 import requests
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.conf import settings
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
 #from tavily import TavilyClient
 from .models import SearchResult
 from django.db import connection
+from .models import Content
+#from django.contrib.auth.decorators import login_required
+
 
 
 
@@ -180,3 +183,58 @@ def get_table_data(request):
 
         except sqlite3.Error as e:
             return JsonResponse({"error": str(e)}, status=500)
+
+
+# code for content studio 
+
+
+def content_studio(request):
+    return render(request, 'content_studio.html')
+
+
+# code for content library
+
+
+def content_library(request):
+    # Sample data (Replace with database query)
+    content_items = [
+        {"type": "Audio", "title": "Podcast Episode 1", "date": "2023-10-05", "visibility": "OnlyMe"},
+        {"type": "Video", "title": "Tutorial on CSS", "date": "2023-09-30", "visibility": "OnlyMe"},
+        {"type": "Text", "title": "Article on AI", "date": "2023-10-10", "visibility": "OnlyMe"},
+        {"type": "File", "title": "Project Report", "date": "2023-08-24", "visibility": "OnlyMe"},
+    ]
+
+    return render(request, 'content_library.html', {"content_items": content_items})
+
+
+# for content-manager
+
+
+
+
+
+#@login_required
+def content_manager(request):
+    contents = Content.objects.all()
+    
+    if request.method == "POST":
+        title = request.POST.get('title')
+        visibility = request.POST.get('visibility')
+        content_type = request.POST.get('content_type')
+        description = request.POST.get('description')
+        tags = request.POST.get('tags')
+        file = request.FILES.get('file')
+
+        Content.objects.create(
+            user=request.user,
+            title=title,
+            visibility=visibility,
+            content_type=content_type,
+            description=description,
+            tags=tags,
+            file=file
+        )
+        return redirect('content_manager')
+
+    return render(request, 'content_manager.html', {'contents': contents})
+

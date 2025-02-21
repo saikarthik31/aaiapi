@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Content Studio</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+</head>
+<body class="container mt-4">
+
+    <h1 class="fw-bold">🎙 Content Studio</h1>
+
+    <!-- Recording Options -->
+    <div class="card p-3 bg-light">
+        <h2 class="fw-bold">Recording Options</h2>
+        <p>Select options to start recording</p>
+        <div>
+            <input type="checkbox" id="audio"> Audio
+            <input type="checkbox" id="video"> Video
+        </div>
+        <button class="btn btn-primary mt-2" onclick="toggleRecording()">Start Recording</button>
+    </div>
+
+    <!-- Text Editor -->
+    <div class="card p-3 bg-light mt-4">
+        <h2 class="fw-bold">Add Text with Markdown</h2>
+        <textarea class="form-control" rows="5" placeholder="Enter text here..."></textarea>
+    </div>
+
+    <!-- File Upload -->
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <div class="card p-3 bg-light">
+                <h2 class="fw-bold">File Upload</h2>
+                <input type="file" id="fileUpload">
+                <button class="btn btn-secondary mt-2" onclick="showPageSelection()">Upload</button>
+            </div>
+        </div>
+
+        <!-- Plugins Sidebar -->
+        <div class="col-md-6">
+            <div class="card p-3 bg-light">
+                <h2 class="fw-bold">Plugins</h2>
+                <label><input type="checkbox" class="plugin-toggle" checked> Transcript Generation</label><br>
+                <label><input type="checkbox" class="plugin-toggle"> Notes Generation</label><br>
+                <label><input type="checkbox" class="plugin-toggle" checked> Summary Generation</label><br>
+                <label><input type="checkbox" class="plugin-toggle"> Short Video Generation</label><br>
+                <label><input type="checkbox" class="plugin-toggle" checked> Custom Prompt</label>
+            </div>
+        </div>
+    </div>
+
+    <!-- Output Section with Tabs -->
+    <div class="card p-3 bg-light mt-4">
+        <h2 class="fw-bold">Outputs</h2>
+        <ul class="nav nav-tabs" id="outputTabs">
+            <li class="nav-item"><a class="nav-link active" href="#transcript" data-bs-toggle="tab">Transcript</a></li>
+            <li class="nav-item"><a class="nav-link" href="#notes" data-bs-toggle="tab">Notes</a></li>
+            <li class="nav-item"><a class="nav-link" href="#summary" data-bs-toggle="tab">Summary</a></li>
+        </ul>
+        <div class="tab-content mt-3">
+            <div class="tab-pane fade show active" id="transcript">
+                <textarea class="form-control" rows="3" placeholder="Transcript output..."></textarea>
+            </div>
+            <div class="tab-pane fade" id="notes">
+                <textarea class="form-control" rows="3" placeholder="Notes output..."></textarea>
+            </div>
+            <div class="tab-pane fade" id="summary">
+                <textarea class="form-control" rows="3" placeholder="Summary output..."></textarea>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sharing & Playlist Options -->
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <div class="card p-3 bg-light">
+                <h2 class="fw-bold">Sharing Options</h2>
+                <select class="form-select">
+                    <option>Only Me</option>
+                    <option>Subscribers</option>
+                    <option>Public</option>
+                </select>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card p-3 bg-light">
+                <h2 class="fw-bold">Add to Playlist</h2>
+                <button class="btn btn-success">Add to Playlist</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="d-flex justify-content-end mt-4">
+        <button class="btn btn-primary">Start Recording</button>
+        <button class="btn btn-secondary ms-2">Upload</button>
+    </div>
+
+    <!-- JavaScript -->
+    <script>
+        function toggleRecording() {
+            let button = document.querySelector("button.btn-primary");
+            if (button.innerText === "Start Recording") {
+                button.innerText = "Stop Recording";
+                showToast("Recording Started");
+            } else {
+                button.innerText = "Start Recording";
+                showToast("Recording Stopped");
+            }
+        }
+
+        function showPageSelection() {
+            let fromPage = prompt("Enter starting page number:");
+            let toPage = prompt("Enter ending page number:");
+            if (fromPage && toPage) {
+                showToast(`Pages ${fromPage} to ${toPage} selected.`);
+            }
+        }
+
+        function showToast(message) {
+            Toastify({
+                text: message,
+                duration: 3000,
+                gravity: "top",
+                backgroundColor: "blue",
+            }).showToast();
+        }
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

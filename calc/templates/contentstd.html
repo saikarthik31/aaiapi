@@ -1,0 +1,74 @@
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Switch } from "@/components/ui/switch";
+import { Textarea } from "@/components/ui/textarea";
+
+export default function ContentStudio() {
+  const [plugins, setPlugins] = useState({
+    transcript: true,
+    notes: false,
+    summary: true,
+    shortVideo: false,
+    customPrompt: true,
+  });
+
+  const togglePlugin = (key) => {
+    setPlugins((prev) => ({ ...prev, [key]: !prev[key] }));
+  };
+
+  return (
+    <div className="p-6 max-w-4xl mx-auto">
+      <h1 className="text-xl font-bold mb-4">🎙 Content Studio</h1>
+      
+      <Card className="p-4 bg-blue-100">
+        <h2 className="font-bold">Recording Options</h2>
+        <p className="text-sm">Select options to start recording</p>
+        <div className="mt-2 flex gap-2">
+          <input type="checkbox" /> Audio
+          <input type="checkbox" /> Video
+          <input type="checkbox" /> Screen
+        </div>
+      </Card>
+
+      <Card className="p-4 bg-blue-100 mt-4">
+        <h2 className="font-bold">Add Text with Markdown</h2>
+        <Textarea placeholder="Enter your text with Markdown..." className="mt-2" />
+      </Card>
+
+      <div className="grid grid-cols-2 gap-4 mt-4">
+        <Card className="p-4 bg-blue-100">
+          <h2 className="font-bold">File Upload</h2>
+          <input type="file" className="mt-2" />
+        </Card>
+        <Card className="p-4 bg-blue-100">
+          <h2 className="font-bold">Plugins</h2>
+          {Object.entries(plugins).map(([key, value]) => (
+            <div key={key} className="flex items-center gap-2 mt-2">
+              <Switch checked={value} onCheckedChange={() => togglePlugin(key)} />
+              {key.replace(/([A-Z])/g, ' $1').trim()}
+            </div>
+          ))}
+        </Card>
+      </div>
+
+      <Card className="p-4 bg-blue-100 mt-4">
+        <h2 className="font-bold">Outputs</h2>
+        <div className="flex gap-2 mt-2">
+          <Button>Transcript</Button>
+          <Button>Notes</Button>
+          <Button>Summary</Button>
+          <Button>Short Video</Button>
+          <Button>Custom Prompt</Button>
+        </div>
+        <p className="mt-4 font-bold">Transcript:</p>
+        <Textarea placeholder="Enter transcript with Markdown..." className="mt-2" />
+      </Card>
+
+      <div className="flex justify-end mt-4 gap-2">
+        <Button className="bg-blue-500">Start Recording</Button>
+        <Button className="bg-gray-200">Upload</Button>
+      </div>
+    </div>
+  );
+}

@@ -1,0 +1,89 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Content Manager</title>
+    <link rel="stylesheet" href="{% static 'styles.css' %}">
+</head>
+<body>
+    <div class="container">
+        <aside class="sidebar">
+            <h2>📘 Content</h2>
+            <button>OnlyMe</button>
+            <button>Subscribers</button>
+            <button>Visibility</button>
+            <button class="active">Your Content</button>
+            <button class="logout">Sign Out</button>
+        </aside>
+
+        <main class="content-area">
+            <h1>Content Preferences</h1>
+
+            <div class="content-form">
+                <div class="profile-section">
+                    <img src="{% static 'profile-placeholder.png' %}" alt="Profile Picture">
+                    <p>@{{ user.username }}<br><small>Modify visibility</small></p>
+                </div>
+
+                <form method="POST" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <label>Content Title:</label>
+                    <input type="text" name="title" placeholder="New Title" required>
+
+                    <label>Visibility Options:</label>
+                    <select name="visibility">
+                        <option value="onlyme">Only Me</option>
+                        <option value="subscribers">Subscribers</option>
+                        <option value="public">Public</option>
+                    </select>
+
+                    <label>Content Type:</label>
+                    <select name="content_type">
+                        <option value="audio">Audio</option>
+                        <option value="video">Video</option>
+                        <option value="text">Text</option>
+                        <option value="file">File</option>
+                    </select>
+
+                    <label>Creation Date:</label>
+                    <input type="date" name="creation_date">
+
+                    <label>Tags:</label>
+                    <input type="text" name="tags" placeholder="Tag1, Tag2, Tag3">
+
+                    <label>Description:</label>
+                    <textarea name="description" placeholder="Brief description of content"></textarea>
+
+                    <label>File Upload:</label>
+                    <input type="file" name="file">
+
+                    <button type="submit">Save Content</button>
+                </form>
+            </div>
+
+            <section class="artifacts">
+                <h2>Artifacts</h2>
+                <ul>
+                    {% for content in contents %}
+                    <li>
+                        📄 {{ content.file.name }} <a href="{{ content.file.url }}" target="_blank">Preview</a>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </section>
+
+            <section class="content-visibility">
+                <h2>Content Visibility</h2>
+                <ul>
+                    <li>👤 Only Me <button>Edit</button></li>
+                    <li>👥 Subscribers <button>Edit</button></li>
+                    <li>🌍 Public <button>Edit</button></li>
+                </ul>
+                <button class="change-visibility">Change Visibility</button>
+            </section>
+        </main>
+    </div>
+</body>
+</html>
